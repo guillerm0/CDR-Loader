@@ -5,12 +5,25 @@ use IO::Dir;
 use Thread::Pool;
 use Data::Printer;
 use Thread::Semaphore;
+use Getopt::Long;
+
+my $workers = 5;
+my $maxjobs = 25;
+my $minjobs = 15;
+
+GetOptions(
+    'workers|w=i' => \$workers,
+    'maxjobs|m=i' => \$maxjobs,
+    'minjobs|n=i' => \$minjobs,
+);
+
 ###### FUNCTION #######
 
 #Processor flow, here we do everything we need to do with the files incoming
-sub processorFlow {
-    my @data = @_; sleep int(rand(10)); p @data; return;
-}
+sub processorFlow;
+
+
+
 ###### VARIABLES #######
 my $pool = Thread::Pool->new(
     {
@@ -18,9 +31,9 @@ my $pool = Thread::Pool->new(
         do => \&processorFlow,
         frequency => 1000,
         autoshutdown => 1, # default: 1 = yes
-        workers => 20,     # default: 1
-        maxjobs => 50,     # default: 5 * workers
-        minjobs => 10,      # default: maxjobs / 2
+        workers => $workers,     # default: 1
+        maxjobs => $maxjobs,     # default: 5 * workers
+        minjobs => $minjobs,      # default: maxjobs / 2
     });
 
 
@@ -32,5 +45,9 @@ while(defined(my $line = $inputDir->read)){
 
 $pool->shutdown;
 
+## FUNCTIONS ##
+sub processorFlow; {
+    my @data = @_; sleep int(rand(10)); p @data; return;
+}
 
 
