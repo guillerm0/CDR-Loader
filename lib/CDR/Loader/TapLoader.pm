@@ -15,8 +15,13 @@ sub processFlow {
        my $tap = TAP3::Tap3edit->new();
        $tap->decode($config->{'inputDir'}."/".$file) or die $tap->error;
 
-        ##############Logic here to manipulate data#############
-        p $tap->structure;
+        if(!defined($tap->structure->{'notification'})){
+            foreach my $event (@{$tap->structure->{'transferBatch'}->{'callEventDetails'}}){
+                if(defined($event->{'gprsCall'})){
+                    print $event->{'gprsCall'}->{'gprsBasicCallInformation'}->{'gprsChargeableSubscriber'}->{'chargeableSubscriber'}->{'simChargeableSubscriber'}->{'imsi'}." did data traffic\n";
+                }
+            }
+        }
     }catch{
         print "Could not decode file moving to error dir ".$file."\n";
         move($config->{'inputDir'}."/".$file, $config->{'errorDir'}."/".$file);
